@@ -6,7 +6,6 @@ import {{invokerPackage}}.ApiClient;
 {{/imports}}
 
 {{^fullJavaUtil}}import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -69,11 +68,11 @@ public class {{classname}} {
         if ({{paramName}} == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter '{{paramName}}' when calling {{operationId}}");
         }
-        {{/required}}{{/allParams}}{{#hasPathParams}}
-        // create path and map variables
-        final Map<String, Object> uriVariables = new HashMap<String, Object>();{{#pathParams}}
-        uriVariables.put("{{baseName}}", {{#collectionFormat}}apiClient.collectionPathParameterToString(ApiClient.CollectionFormat.valueOf("{{{collectionFormat}}}".toUpperCase()), {{{paramName}}}){{/collectionFormat}}{{^collectionFormat}}{{{paramName}}}{{/collectionFormat}});{{/pathParams}}{{/hasPathParams}}
-        String path = apiClient.expandPath("{{{path}}}", {{#hasPathParams}}uriVariables{{/hasPathParams}}{{^hasPathParams}}Collections.<String, Object>emptyMap(){{/hasPathParams}});
+        {{/required}}{{/allParams}}
+
+        final String path = "{{{path}}}";
+        final Map<String, Object> pathParams = new HashMap<String, Object>();{{#hasPathParams}}
+        {{#pathParams}}pathParams.put("{{baseName}}", {{#collectionFormat}}apiClient.collectionPathParameterToString(ApiClient.CollectionFormat.valueOf("{{{collectionFormat}}}".toUpperCase()), {{{paramName}}}){{/collectionFormat}}{{^collectionFormat}}{{{paramName}}}{{/collectionFormat}});{{/pathParams}}{{/hasPathParams}}
 
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders headerParams = new HttpHeaders();
@@ -102,7 +101,7 @@ public class {{classname}} {
         String[] authNames = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
 
         {{#returnType}}ParameterizedTypeReference<{{{returnType}}}> returnType = new ParameterizedTypeReference<{{{returnType}}}>() {};{{/returnType}}{{^returnType}}ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};{{/returnType}}
-        {{#returnType}}return {{/returnType}}apiClient.invokeAPI(path, HttpMethod.{{httpMethod}}, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+        {{#returnType}}return {{/returnType}}apiClient.invokeAPI(path, HttpMethod.{{httpMethod}}, pathParams, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
     }
     {{/operation}}
 }
